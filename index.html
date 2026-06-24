@@ -518,7 +518,9 @@ cargarTodo();
    
        if (yaVotó()) {
          // Ya votó hoy — mostrar resultados directamente
-         const votoGuardado = localStorage.getItem(KEY_VOTO);
+         const votoGuardado = document.cookie.split(';')
+  .find(c => c.trim().startsWith(KEY_VOTO + '='))
+  ?.split('=')[1];
          mostrarResultados(votoGuardado);
        } else {
          renderOpciones();
@@ -557,7 +559,7 @@ cargarTodo();
    
      window.votar = function(id) {
        // Guardar voto
-       try { localStorage.setItem(KEY_VOTO, id); } catch {}
+       guardarVotoCookie(id);
    
        // Sumar voto
        const votos = getVotos();
