@@ -439,9 +439,21 @@ window.enviarMensaje = function() {
   input.focus();
 };
 
+const NOMBRES_RANDOM = [
+  'CrackMundial','FutbolFan','Goleador','TorcidaBrasil','AficionMexico',
+  'MadridFan','BarçaFan','Hincha','Delantero','Portero','Mediocampista',
+  'TricolorFan','CanarinhFan','AlbicelesteFan','GalloFan','LeoFan',
+  'KylianFan','CR7Fan','HaalandFan','ViniFan'
+];
+
 try {
-  const n = localStorage.getItem('chat_nombre');
-  if (n) document.getElementById('chat-nombre').value = n;
+  let nombreGuardado = localStorage.getItem('chat_nombre');
+  if (!nombreGuardado) {
+    const random = NOMBRES_RANDOM[Math.floor(Math.random() * NOMBRES_RANDOM.length)];
+    nombreGuardado = random + Math.floor(Math.random() * 999);
+    localStorage.setItem('chat_nombre', nombreGuardado);
+  }
+  document.getElementById('chat-nombre').value = nombreGuardado;
 } catch {}
 
 // ── API DATOS ──────────────────────────────────
