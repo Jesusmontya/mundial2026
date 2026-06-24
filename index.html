@@ -79,7 +79,68 @@
           <div style="color:var(--text-muted);padding:var(--space-lg);text-align:center">Cargando...</div>
         </div>
       </section>
-
+<!-- =============================================
+     CHAT EN VIVO
+     ============================================= -->
+     <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Chat <span>en vivo</span></h2>
+          <span style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--color-verde)">
+            <span class="live-dot"></span> En vivo
+          </span>
+        </div>
+      
+        <div style="background:var(--bg-card);border:1px solid var(--border);
+                    border-radius:var(--radius-md);overflow:hidden">
+      
+          <!-- MENSAJES -->
+          <div id="chat-mensajes" style="
+            height:320px;overflow-y:auto;padding:var(--space-md);
+            display:flex;flex-direction:column;gap:var(--space-sm);
+            scroll-behavior:smooth">
+            <div style="text-align:center;color:var(--text-muted);
+                        font-size:0.8rem;padding:var(--space-xl)">
+              Sé el primero en comentar ⚽
+            </div>
+          </div>
+      
+          <!-- CONTADOR USUARIOS -->
+          <div style="padding:var(--space-sm) var(--space-md);
+                      border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+                      display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:0.72rem;color:var(--text-muted)">
+              <span class="live-dot"></span>
+              <span id="chat-usuarios">0</span> viendo ahora
+            </span>
+            <span style="font-size:0.72rem;color:var(--text-muted)" id="chat-contador">
+              0 comentarios
+            </span>
+          </div>
+      
+          <!-- INPUT -->
+          <div style="padding:var(--space-md);display:flex;gap:var(--space-sm)">
+            <input id="chat-nombre" placeholder="Tu nombre" style="
+              width:120px;padding:8px 12px;background:var(--bg-base);
+              border:1px solid var(--border);border-radius:var(--radius-sm);
+              color:var(--text-primary);font-family:var(--font-body);font-size:0.85rem;
+              flex-shrink:0" maxlength="20" />
+            <input id="chat-input" placeholder="Comenta el partido..." style="
+              flex:1;padding:8px 12px;background:var(--bg-base);
+              border:1px solid var(--border);border-radius:var(--radius-sm);
+              color:var(--text-primary);font-family:var(--font-body);font-size:0.85rem" 
+              maxlength="200"
+              onkeydown="if(event.key==='Enter') enviarMensaje()" />
+            <button onclick="enviarMensaje()" style="
+              padding:8px 16px;background:var(--color-verde);color:#000;
+              border:none;border-radius:var(--radius-sm);font-family:var(--font-display);
+              font-size:0.9rem;letter-spacing:1px;cursor:pointer;
+              flex-shrink:0;transition:opacity 0.15s">
+              ENVIAR
+            </button>
+          </div>
+      
+        </div>
+      </section>
       <!-- ANUNCIO MEDIO -->
       <div class="ad ad-horizontal">Publicidad — AdSense 728×90</div>
 
@@ -557,5 +618,110 @@ cargarTodo();
    
    })();
    </script>
+   <!-- FIREBASE CHAT -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, serverTimestamp, query, limitToLast, set, onDisconnect }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyBNF719iv9kFMlkZN-vtcZ7Y9aVRX8YauM",
+      authDomain: "mundial2026-56562.firebaseapp.com",
+      databaseURL: "https://mundial2026-56562-default-rtdb.firebaseio.com",
+      projectId: "mundial2026-56562",
+      storageBucket: "mundial2026-56562.firebasestorage.app",
+      messagingSenderId: "875224397155",
+      appId: "1:875224397155:web:26b016854fe31d1ca74f56"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+    
+    // ── USUARIOS EN LÍNEA ──────────────────────────
+    const userId   = Math.random().toString(36).substr(2, 9);
+    const userRef  = ref(db, `presencia/${userId}`);
+    set(userRef, true);
+    onDisconnect(userRef).remove();
+    
+    const presenciaRef = ref(db, 'presencia');
+    onValue(presenciaRef, snap => {
+      const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+      document.getElementById('chat-usuarios').textContent = count;
+    });
+    
+    // ── MENSAJES ───────────────────────────────────
+    const msgsRef = query(ref(db, 'chat/mundial2026'), limitToLast(50));
+    
+    onValue(msgsRef, snap => {
+      if (!snap.exists()) return;
+      const msgs = [];
+      snap.forEach(child => msgs.push(child.val()));
+    
+      document.getElementById('chat-contador').textContent =
+        `${msgs.length} comentarios`;
+    
+      const contenedor = document.getElementById('chat-mensajes');
+      const estaAbajo  = contenedor.scrollHeight - contenedor.scrollTop <= contenedor.clientHeight + 60;
+    
+      contenedor.innerHTML = msgs.map(m => {
+        const hora = m.ts ? new Date(m.ts).toLocaleTimeString('es-MX',
+          { hour:'2-digit', minute:'2-digit' }) : '';
+        const esMio = m.uid === userId;
+        return `
+          <div style="display:flex;flex-direction:column;
+                      align-items:${esMio ? 'flex-end' : 'flex-start'}">
+            <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:3px">
+              <span style="font-size:0.72rem;font-weight:600;
+                           color:${esMio ? 'var(--color-verde)' : 'var(--color-dorado)'}">
+                ${m.nombre}
+              </span>
+              <span style="font-size:0.65rem;color:var(--text-muted)">${hora}</span>
+            </div>
+            <div style="
+              max-width:80%;padding:7px 12px;border-radius:${esMio ? '12px 12px 2px 12px' : '12px 12px 12px 2px'};
+              background:${esMio ? 'rgba(0,210,91,0.12)' : 'rgba(255,255,255,0.05)'};
+              border:1px solid ${esMio ? 'rgba(0,210,91,0.25)' : 'var(--border)'};
+              font-size:0.85rem;line-height:1.4;word-break:break-word">
+              ${m.texto}
+            </div>
+          </div>`;
+      }).join('');
+    
+      if (estaAbajo) {
+        contenedor.scrollTop = contenedor.scrollHeight;
+      }
+    });
+    
+    // ── ENVIAR ─────────────────────────────────────
+    window.enviarMensaje = function() {
+      const nombreInput = document.getElementById('chat-nombre');
+      const input       = document.getElementById('chat-input');
+    
+      const nombre = nombreInput.value.trim() || 'Anónimo';
+      const texto  = input.value.trim();
+      if (!texto) return;
+    
+      // Guardar nombre en localStorage
+      try { localStorage.setItem('chat_nombre', nombre); } catch {}
+    
+      push(ref(db, 'chat/mundial2026'), {
+        nombre,
+        texto,
+        uid: userId,
+        ts:  Date.now(),
+      });
+    
+      input.value = '';
+      input.focus();
+    };
+    
+    // Recuperar nombre guardado
+    try {
+      const nombreGuardado = localStorage.getItem('chat_nombre');
+      if (nombreGuardado) {
+        document.getElementById('chat-nombre').value = nombreGuardado;
+      }
+    } catch {}
+    </script>
 </body>
 </html>
