@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predicciones Mundial 2026 — Quiniela y Probabilidades</title>
+  <meta name="description" content="Predicciones y quiniela del Mundial 2026. Probabilidades de clasificación y simulador de resultados." />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .prob-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      margin: 6px 0;
+      display: flex;
+    }
+    .prob-local { background: var(--color-verde); height: 100%; transition: width 0.6s ease; }
+    .prob-empate { background: var(--color-dorado); height: 100%; transition: width 0.6s ease; }
+    .prob-visit  { background: var(--color-rojo); height: 100%; transition: width 0.6s ease; }
+
+    .pred-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .pred-card:hover { border-color: rgba(0,210,91,0.35); }
+
+    .pred-header {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+    }
+
+    .pred-equipo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .pred-equipo.away { flex-direction: row-reverse; text-align: right; }
+
+    .pred-vs {
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+    }
+
+    .pred-body {
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.15);
+    }
+
+    .prob-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .prob-nums {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-data);
+      font-size: 0.82rem;
+      margin-top: 4px;
+    }
+
+    .quiniela-input {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-lg);
+      border-top: 1px solid var(--border);
+    }
+    .score-input {
+      width: 36px;
+      height: 36px;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+    }
+    .score-input:focus {
+      outline: none;
+      border-color: var(--color-verde);
+    }
+    .score-sep {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--text-muted);
+    }
+
+    .btn-guardar {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--color-verde);
+      color: #000;
+      border: none;
+      font-family: var(--font-body);
+      transition: opacity 0.15s;
+    }
+    .btn-guardar:hover { opacity: 0.85; }
+    .btn-guardar.guardado {
+      background: var(--bg-card);
+      color: var(--color-verde);
+      border: 1px solid var(--color-verde);
+    }
+
+    .clasificacion-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: 10px var(--space-md);
+      border-bottom: 1px solid rgba(30,37,64,0.6);
+    }
+    .clasificacion-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;width:100%;max-width:100%">
+    <div class="navbar-logo">MUNDIAL <span>2026</span></div>
+    <ul class="navbar-links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="tabla.html">Tabla</a></li>
+      <li><a href="resultados.html">Resultados</a></li>
+      <li><a href="calendario.html">Calendario</a></li>
+      <li><a href="estadisticas.html">Stats</a></li>
+      <li><a href="predicciones.html" class="active">Predicciones</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="container">
+  <div style="padding:var(--space-xl) 0 var(--space-lg);border-bottom:1px solid var(--border);margin-bottom:var(--space-xl)">
+    <h1 style="font-size:clamp(2rem,5vw,3.5rem)">
+      PREDICCIONES <span style="color:var(--color-verde)">2026</span>
+    </h1>
+    <p style="color:var(--text-muted);margin-top:var(--space-sm)">
+      Probabilidades basadas en rendimiento actual · Haz tu quiniela
+    </p>
+  </div>
+</div>
+
+<!-- ANUNCIO TOP -->
+<div class="container">
+  <div class="ad ad-horizontal">Publicidad — AdSense 728×90</div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="container">
+  <div class="layout-main">
+    <main>
+
+      <!-- PRÓXIMOS CON PROBABILIDADES -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Próximos <span>partidos</span></h2>
+        </div>
+        <div id="predicciones-container" style="display:flex;flex-direction:column;gap:var(--space-md)">
+          <div style="color:var(--text-muted);padding:var(--space-xl);text-align:center">Cargando...</div>
+        </div>
+      </section>
+
+      <!-- ANUNCIO MEDIO -->
+      <div class="ad ad-horizontal">Publicidad — AdSense 728×90</div>
+
+      <!-- POSIBLES CLASIFICADOS -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Líderes por <span>grupo</span></h2>
+        </div>
+        <div id="clasificacion-container"
+          style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--space-md)">
+          <div style="color:var(--text-muted);padding:var(--space-xl);text-align:center">Cargando...</div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="ad ad-sidebar">AdSense 300×250</div>
+
+      <div class="widget">
+        <div class="widget-header">Mi quiniela</div>
+        <div class="widget-body" id="mis-predicciones">
+          <div style="color:var(--text-muted);font-size:0.82rem;text-align:center">
+            Haz clic en "Guardar" en cada partido para registrar tu predicción
+          </div>
+        </div>
+      </div>
+
+      <div class="ad ad-sidebar">AdSense 300×250</div>
+
+    </aside>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <p>Mundial 2026 · Predicciones basadas en datos reales · <a href="#">Aviso de privacidad</a></p>
+  </div>
+</footer>
+
+<script type="module">
+
+const API = "http://localhost:8000/api";
+
+function escudo(url, nombre) {
+  return url
+    ? `<img src="${url}" width="22" height="22" style="object-fit:contain;flex-shrink:0" onerror="this.style.display='none'" alt="${nombre}">`
+    : '';
+}
+
+function fmtFecha(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('es-MX', { weekday:'short', day:'numeric', month:'short' });
+}
+
+function fmtHora(iso) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
+}
+
+// Probabilidades simuladas basadas en puntos
+function calcProbs(local, visitante, tabla) {
+  const todos = Object.values(tabla).flat();
+  const eqL = todos.find(e => e.equipo === local);
+  const eqV = todos.find(e => e.equipo === visitante);
+
+  if (!eqL || !eqV) return { local: 40, empate: 25, visitante: 35 };
+
+  const ptsL = eqL.pts + eqL.gf * 0.1;
+  const ptsV = eqV.pts + eqV.gf * 0.1;
+  const total = ptsL + ptsV + 2;
+
+  const probL = Math.round((ptsL / total) * 70 + 15);
+  const probV = Math.round((ptsV / total) * 70 + 15);
+  const probE = Math.max(5, 100 - probL - probV);
+
+  const sum = probL + probE + probV;
+  return {
+    local:     Math.round(probL / sum * 100),
+    empate:    Math.round(probE / sum * 100),
+    visitante: Math.round(probV / sum * 100),
+  };
+}
+
+// Quiniela en memoria (sesión)
+const quiniela = {};
+
+function guardarPrediccion(id, local, visitante, gl, gv) {
+  quiniela[id] = { local, visitante, gl, gv };
+  renderMisPredicciones();
+  const btn = document.querySelector(`[data-btn="${id}"]`);
+  if (btn) {
+    btn.textContent = '✓ Guardado';
+    btn.classList.add('guardado');
+  }
+}
+
+function renderMisPredicciones() {
+  const keys = Object.keys(quiniela);
+  if (!keys.length) {
+    document.getElementById('mis-predicciones').innerHTML =
+      '<div style="color:var(--text-muted);font-size:0.82rem;text-align:center">Sin predicciones aún</div>';
+    return;
+  }
+  document.getElementById('mis-predicciones').innerHTML =
+    keys.map(id => {
+      const p = quiniela[id];
+      return `
+        <div style="padding:8px 0;border-bottom:1px solid rgba(30,37,64,0.6);font-size:0.82rem">
+          <div style="font-weight:500">${p.local} vs ${p.visitante}</div>
+          <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--color-dorado)">
+            ${p.gl} — ${p.gv}
+          </div>
+        </div>`;
+    }).join('');
+}
+
+// ── PREDICCIONES ───────────────────────────────
+
+function renderPredicciones(calendario, tabla) {
+  if (!calendario.length) {
+    document.getElementById('predicciones-container').innerHTML =
+      '<div style="color:var(--text-muted);padding:var(--space-xl);text-align:center">Sin partidos próximos</div>';
+    return;
+  }
+
+  document.getElementById('predicciones-container').innerHTML =
+    calendario.slice(0, 8).map(p => {
+      const probs = calcProbs(p.local, p.visitante, tabla);
+      const id = p.id;
+      return `
+        <div class="pred-card">
+          <div class="pred-header">
+            <div class="pred-equipo">
+              ${escudo(p.escudo_l, p.local)}
+              <span>${p.local}</span>
+            </div>
+            <div class="pred-vs">
+              <div style="font-size:0.72rem;color:var(--color-dorado);margin-bottom:2px">
+                ${fmtFecha(p.fecha)} ${fmtHora(p.fecha)}
+              </div>
+              VS
+              <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px">
+                ${p.grupo ?? ''}
+              </div>
+            </div>
+            <div class="pred-equipo away">
+              ${escudo(p.escudo_v, p.visitante)}
+              <span>${p.visitante}</span>
+            </div>
+          </div>
+
+          <div class="pred-body">
+            <div class="prob-labels">
+              <span>${p.local}</span>
+              <span>Empate</span>
+              <span>${p.visitante}</span>
+            </div>
+            <div class="prob-bar">
+              <div class="prob-local"   style="width:${probs.local}%"></div>
+              <div class="prob-empate"  style="width:${probs.empate}%"></div>
+              <div class="prob-visit"   style="width:${probs.visitante}%"></div>
+            </div>
+            <div class="prob-nums">
+              <span style="color:var(--color-verde)">${probs.local}%</span>
+              <span style="color:var(--color-dorado)">${probs.empate}%</span>
+              <span style="color:var(--color-rojo)">${probs.visitante}%</span>
+            </div>
+          </div>
+
+          <div class="quiniela-input">
+            <span style="font-size:0.75rem;color:var(--text-muted);margin-right:4px">Tu predicción:</span>
+            ${escudo(p.escudo_l, p.local)}
+            <input type="number" min="0" max="20" value="0" id="gl-${id}" class="score-input" />
+            <span class="score-sep">—</span>
+            <input type="number" min="0" max="20" value="0" id="gv-${id}" class="score-input" />
+            ${escudo(p.escudo_v, p.visitante)}
+            <button class="btn-guardar" data-btn="${id}"
+              onclick="window.guardar(${id}, '${p.local}', '${p.visitante}')">
+              Guardar
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+}
+
+window.guardar = (id, local, visitante) => {
+  const gl = parseInt(document.getElementById(`gl-${id}`)?.value) || 0;
+  const gv = parseInt(document.getElementById(`gv-${id}`)?.value) || 0;
+  guardarPrediccion(id, local, visitante, gl, gv);
+};
+
+// ── LÍDERES POR GRUPO ──────────────────────────
+
+function renderClasificacion(tabla) {
+  document.getElementById('clasificacion-container').innerHTML =
+    Object.entries(tabla).map(([grupo, equipos]) => {
+      const letra = grupo.replace('Group ', '');
+      const top2  = equipos.slice(0, 2);
+      const resto = equipos.slice(2);
+      return `
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:var(--space-sm) var(--space-md);background:rgba(0,210,91,0.06);
+                      border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--font-display);font-size:0.85rem;
+                         letter-spacing:2px;color:var(--color-verde)">GRUPO ${letra}</span>
+          </div>
+          ${top2.map(e => `
+            <div class="clasificacion-row">
+              ${escudo(e.escudo, e.equipo)}
+              <div style="flex:1">
+                <div style="font-weight:500;font-size:0.88rem">${e.equipo}</div>
+                <div style="font-size:0.7rem;color:var(--text-muted)">${e.pj} PJ · ${e.gf} GF</div>
+              </div>
+              <div style="text-align:right">
+                <span style="font-family:var(--font-display);font-size:1.3rem;
+                             color:var(--color-verde)">${e.pts}</span>
+                <span style="font-size:0.68rem;color:var(--text-muted);display:block">pts</span>
+              </div>
+              <span class="badge badge-verde" style="font-size:0.62rem">Clasifica</span>
+            </div>
+          `).join('')}
+          ${resto.map(e => `
+            <div class="clasificacion-row" style="opacity:0.5">
+              ${escudo(e.escudo, e.equipo)}
+              <div style="flex:1">
+                <div style="font-size:0.85rem">${e.equipo}</div>
+              </div>
+              <span style="font-family:var(--font-display);font-size:1.2rem;
+                           color:var(--text-muted)">${e.pts}</span>
+            </div>
+          `).join('')}
+        </div>`;
+    }).join('');
+}
+
+// ── INIT ───────────────────────────────────────
+
+async function cargarTodo() {
+  try {
+    const [calRes, tablaRes] = await Promise.all([
+      fetch(`${API}/calendario/`),
+      fetch(`${API}/tabla/`),
+    ]);
+
+    const calendario = await calRes.json();
+    const tabla      = await tablaRes.json();
+
+    renderPredicciones(calendario, tabla);
+    renderClasificacion(tabla);
+    renderMisPredicciones();
+
+  } catch(e) {
+    console.error("Error:", e);
+    document.getElementById('predicciones-container').innerHTML =
+      `<div style="color:var(--color-rojo);padding:var(--space-xl);text-align:center">
+        Error conectando al servidor. ¿Está corriendo el backend?
+      </div>`;
+  }
+}
+
+cargarTodo();
+
+</script>
+</body>
+</html>

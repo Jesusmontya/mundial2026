@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabla de Posiciones Mundial 2026 — Todos los Grupos</title>
+  <meta name="description" content="Tabla de posiciones del Mundial 2026 actualizada. Todos los grupos con puntos, goles y diferencia de goles." />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;width:100%;max-width:100%">
+    <div class="navbar-logo">MUNDIAL <span>2026</span></div>
+    <ul class="navbar-links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="tabla.html" class="active">Tabla</a></li>
+      <li><a href="resultados.html">Resultados</a></li>
+      <li><a href="calendario.html">Calendario</a></li>
+      <li><a href="estadisticas.html">Stats</a></li>
+      <li><a href="predicciones.html">Predicciones</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="container">
+  <div style="padding:var(--space-xl) 0 var(--space-lg);border-bottom:1px solid var(--border);margin-bottom:var(--space-xl)">
+    <h1 style="font-size:clamp(2rem,5vw,3.5rem)">
+      TABLA DE <span style="color:var(--color-verde)">POSICIONES</span>
+    </h1>
+    <p style="color:var(--text-muted);margin-top:var(--space-sm)">
+      Mundial 2026 · Fase de grupos · Actualizado cada 5 minutos
+    </p>
+  </div>
+</div>
+
+<!-- ANUNCIO TOP -->
+<div class="container">
+  <div class="ad ad-horizontal">Publicidad — AdSense 728×90</div>
+</div>
+
+<!-- TABS GRUPOS -->
+<div class="container">
+  <div class="tabs" id="tabs-grupos" style="margin-bottom:var(--space-lg)"></div>
+</div>
+
+<!-- LAYOUT -->
+<div class="container">
+  <div class="layout-main">
+
+    <main>
+
+      <!-- VISTA GRUPO ACTIVO -->
+      <section class="section" id="seccion-grupo">
+        <div class="section-header">
+          <h2 class="section-title" id="titulo-grupo">Grupo <span>A</span></h2>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;margin-bottom:var(--space-xl)">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th style="width:32px">#</th>
+                <th>Equipo</th>
+                <th class="c">PJ</th>
+                <th class="c">G</th>
+                <th class="c">E</th>
+                <th class="c">P</th>
+                <th class="c">GF</th>
+                <th class="c">GC</th>
+                <th class="c">Dif</th>
+                <th class="c">Pts</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-body">
+              <tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:var(--space-xl)">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- LEYENDA -->
+        <div style="display:flex;gap:var(--space-lg);flex-wrap:wrap;font-size:0.75rem;color:var(--text-muted)">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:12px;height:12px;border-radius:2px;background:rgba(0,210,91,0.15);border:1px solid var(--color-verde)"></div>
+            Clasifica a octavos
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:12px;height:12px;border-radius:2px;background:rgba(255,215,0,0.12);border:1px solid var(--color-dorado)"></div>
+            Mejor tercero (posible clasificación)
+          </div>
+        </div>
+      </section>
+
+      <!-- ANUNCIO MEDIO -->
+      <div class="ad ad-horizontal">Publicidad — AdSense 728×90</div>
+
+      <!-- TODOS LOS GRUPOS (vista compacta) -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Todos los <span>grupos</span></h2>
+        </div>
+        <div id="todos-grupos" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:var(--space-lg)">
+          <div style="color:var(--text-muted);padding:var(--space-lg);text-align:center">Cargando...</div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="ad ad-sidebar">AdSense 300×250</div>
+
+      <div class="widget">
+        <div class="widget-header">Goleadores</div>
+        <div class="widget-body" id="goleadores">
+          <div style="color:var(--text-muted);text-align:center;padding:var(--space-md)">Cargando...</div>
+        </div>
+      </div>
+
+      <div class="ad ad-sidebar">AdSense 300×250</div>
+
+    </aside>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <p>Mundial 2026 · Tabla de posiciones actualizada cada 5 minutos · <a href="#">Aviso de privacidad</a></p>
+  </div>
+</footer>
+
+<script type="module">
+
+const API = "http://localhost:8000/api";
+
+function escudo(url, nombre) {
+  return url
+    ? `<img src="${url}" width="20" height="20" style="object-fit:contain;flex-shrink:0" onerror="this.style.display='none'" alt="${nombre}">`
+    : '';
+}
+
+let _tabla = {};
+let grupoActivo = '';
+
+// ── TABLA PRINCIPAL (grupo activo) ─────────────
+
+function renderTabs(grupos) {
+  document.getElementById('tabs-grupos').innerHTML =
+    grupos.map(g => `
+      <button class="tab ${g === grupoActivo ? 'active' : ''}"
+        onclick="setGrupo('${g}')">
+        ${g.replace('Group ', 'Grupo ')}
+      </button>
+    `).join('');
+}
+
+function renderFilas(equipos) {
+  document.getElementById('tabla-body').innerHTML =
+    equipos.map(e => {
+      const cls = e.pos <= 2 ? 'pos-1' : e.pos === 3 ? 'pos-3' : 'pos-4';
+      const dif = e.dif > 0 ? `+${e.dif}` : e.dif;
+      return `
+        <tr>
+          <td><div class="pos-badge ${cls}">${e.pos}</div></td>
+          <td><div class="equipo-cell">
+            ${escudo(e.escudo, e.equipo)}
+            <span>${e.equipo}</span>
+          </div></td>
+          <td class="c">${e.pj}</td>
+          <td class="c">${e.g}</td>
+          <td class="c">${e.e}</td>
+          <td class="c">${e.p}</td>
+          <td class="c">${e.gf}</td>
+          <td class="c">${e.gc}</td>
+          <td class="c" style="color:${e.dif > 0 ? 'var(--color-verde)' : e.dif < 0 ? 'var(--color-rojo)' : 'var(--text-muted)'}">${dif}</td>
+          <td class="pts">${e.pts}</td>
+        </tr>`;
+    }).join('');
+}
+
+function actualizarTituloGrupo(g) {
+  const letra = g.replace('Group ', '');
+  document.getElementById('titulo-grupo').innerHTML =
+    `Grupo <span style="color:var(--color-verde)">${letra}</span>`;
+}
+
+window.setGrupo = g => {
+  grupoActivo = g;
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.trim() === g.replace('Group ', 'Grupo '));
+  });
+  actualizarTituloGrupo(g);
+  renderFilas(_tabla[g]);
+};
+
+// ── TODOS LOS GRUPOS (mini tablas) ─────────────
+
+function renderTodosGrupos(tabla) {
+  const grupos = Object.keys(tabla);
+  document.getElementById('todos-grupos').innerHTML =
+    grupos.map(g => {
+      const letra = g.replace('Group ', '');
+      const filas = tabla[g].map(e => {
+        const cls = e.pos <= 2 ? 'pos-1' : e.pos === 3 ? 'pos-3' : 'pos-4';
+        return `
+          <tr>
+            <td style="width:24px"><div class="pos-badge ${cls}" style="width:18px;height:18px;font-size:0.65rem">${e.pos}</div></td>
+            <td>
+              <div class="equipo-cell" style="gap:6px">
+                ${escudo(e.escudo, e.equipo)}
+                <span style="font-size:0.82rem">${e.equipo}</span>
+              </div>
+            </td>
+            <td style="text-align:center;color:var(--text-muted);font-size:0.8rem;padding:7px 6px">${e.pj}</td>
+            <td style="text-align:center;color:var(--text-muted);font-size:0.8rem;padding:7px 6px">${e.pts}</td>
+          </tr>`;
+      }).join('');
+
+      return `
+        <div class="card" style="padding:0;overflow:hidden;cursor:pointer" onclick="setGrupo('${g}');window.scrollTo({top:0,behavior:'smooth'})">
+          <div style="padding:var(--space-sm) var(--space-md);background:rgba(0,210,91,0.06);border-bottom:1px solid var(--border)">
+            <span style="font-family:var(--font-display);font-size:0.9rem;letter-spacing:2px;color:var(--color-verde)">
+              GRUPO ${letra}
+            </span>
+          </div>
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr>
+                <th style="width:24px;padding:5px 6px"></th>
+                <th style="text-align:left;font-size:0.65rem;color:var(--text-muted);letter-spacing:1px;padding:5px 6px;text-transform:uppercase">Equipo</th>
+                <th style="text-align:center;font-size:0.65rem;color:var(--text-muted);letter-spacing:1px;padding:5px 6px;text-transform:uppercase">PJ</th>
+                <th style="text-align:center;font-size:0.65rem;color:var(--text-muted);letter-spacing:1px;padding:5px 6px;text-transform:uppercase">Pts</th>
+              </tr>
+            </thead>
+            <tbody>${filas}</tbody>
+          </table>
+        </div>`;
+    }).join('');
+}
+
+// ── GOLEADORES ─────────────────────────────────
+
+function renderGoleadores(goleadores) {
+  document.getElementById('goleadores').innerHTML =
+    goleadores.slice(0,8).map((g, i) => `
+      <div style="display:flex;align-items:center;gap:var(--space-sm);
+                  padding:9px 0;border-bottom:1px solid rgba(30,37,64,0.6)">
+        <span style="font-family:var(--font-display);font-size:1.1rem;
+                     color:var(--text-muted);width:18px;text-align:center">${i+1}</span>
+        ${escudo(g.escudo, g.pais)}
+        <div style="flex:1">
+          <div style="font-weight:500;font-size:0.85rem">${g.nombre}</div>
+          <div style="font-size:0.7rem;color:var(--text-muted)">${g.pais}</div>
+        </div>
+        <span style="font-family:var(--font-display);font-size:1.4rem;
+                     color:var(--color-dorado)">${g.goles}</span>
+      </div>
+    `).join('');
+}
+
+// ── INIT ───────────────────────────────────────
+
+async function cargarTodo() {
+  try {
+    const [tablaRes, golesRes] = await Promise.all([
+      fetch(`${API}/tabla/`),
+      fetch(`${API}/goleadores/`),
+    ]);
+
+    const tabla      = await tablaRes.json();
+    const goleadores = await golesRes.json();
+
+    _tabla = tabla;
+    const grupos = Object.keys(tabla);
+    grupoActivo = grupos[0];
+
+    renderTabs(grupos);
+    actualizarTituloGrupo(grupoActivo);
+    renderFilas(_tabla[grupoActivo]);
+    renderTodosGrupos(tabla);
+    renderGoleadores(goleadores);
+
+  } catch(e) {
+    console.error("Error:", e);
+    document.getElementById('tabla-body').innerHTML =
+      `<tr><td colspan="10" style="text-align:center;color:var(--color-rojo);padding:var(--space-xl)">
+        Error conectando al servidor. ¿Está corriendo el backend?
+      </td></tr>`;
+  }
+}
+
+cargarTodo();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estadísticas Mundial 2026 — Goleadores y Más</title>
+  <meta name="description" content="Estadísticas completas del Mundial 2026. Goleadores, equipos con más goles, partidos y datos del torneo." />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      text-align: center;
+    }
+    .stat-card-num {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--color-dorado);
+    }
+    .stat-card-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: var(--space-sm);
+    }
+    .stat-card-sub {
+      font-size: 0.8rem;
+      color: var(--color-verde);
+      margin-top: 4px;
+    }
+
+    .ranking-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: 12px var(--space-md);
+      border-bottom: 1px solid rgba(30,37,64,0.6);
+      transition: background 0.15s;
+    }
+    .ranking-row:hover { background: rgba(255,255,255,0.02); }
+    .ranking-row:last-child { border-bottom: none; }
+
+    .ranking-num {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: var(--text-muted);
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .ranking-num.top1 { color: #FFD700; }
+    .ranking-num.top2 { color: #C0C0C0; }
+    .ranking-num.top3 { color: #CD7F32; }
+
+    .bar-container {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--color-verde);
+      border-radius: 999px;
+      transition: width 0.6s ease;
+    }
+
+    .tabs-section {
+      display: flex;
+      gap: 3px;
+      background: rgba(0,0,0,0.3);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-lg);
+      width: fit-content;
+    }
+    .tab-section {
+      padding: 6px 18px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .tab-section:hover  { color: var(--text-primary); }
+    .tab-section.active { background: var(--color-verde); color: #000; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;width:100%;max-width:100%">
+    <div class="navbar-logo">MUNDIAL <span>2026</span></div>
+    <ul class="navbar-links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="tabla.html">Tabla</a></li>
+      <li><a href="resultados.html">Resultados</a></li>
+      <li><a href="calendario.html">Calendario</a></li>
+      <li><a href="estadisticas.html" class="active">Stats</a></li>
+      <li><a href="predicciones.html">Predicciones</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="container">
+  <div style="padding:var(--space-xl) 0 var(--space-lg);border-bottom:1px solid var(--border);margin-bottom:var(--space-xl)">
+    <h1 style="font-size:clamp(2rem,5vw,3.5rem)">
+      ESTADÍSTICAS <span style="color:var(--color-verde)">2026</span>
+    </h1>
+    <p style="color:var(--text-muted);margin-top:var(--space-sm)">
+      Mundial 2026 · Datos en tiempo real
+    </p>
+  </div>
+</div>
+
+<!-- ANUNCIO TOP -->
+<div class="container">
+  <div class="ad ad-horizontal">Publicidad — AdSense 728×90</div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="container">
+  <div class="layout-main">
+    <main>
+
+      <!-- STATS GLOBALES -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Resumen del <span>torneo</span></h2>
+        </div>
+        <div class="stats-grid" id="stats-globales">
+          <div style="color:var(--text-muted);padding:var(--space-lg);text-align:center">Cargando...</div>
+        </div>
+      </section>
+
+      <!-- ANUNCIO MEDIO -->
+      <div class="ad ad-horizontal">Publicidad — AdSense 728×90</div>
+
+      <!-- TABS RANKINGS -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Rankings <span>del torneo</span></h2>
+        </div>
+
+        <div class="tabs-section">
+          <button class="tab-section active" onclick="setTab('goleadores')">Goleadores</button>
+          <button class="tab-section" onclick="setTab('equipos-goles')">Equipos goleadores</button>
+          <button class="tab-section" onclick="setTab('equipos-puntos')">Equipos por puntos</button>
+        </div>
+
+        <div class="card" style="padding:0;overflow:hidden" id="ranking-container">
+          <div style="color:var(--text-muted);padding:var(--space-xl);text-align:center">Cargando...</div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="ad ad-sidebar">AdSense 300×250</div>
+
+      <div class="widget">
+        <div class="widget-header">Dato curioso</div>
+        <div class="widget-body" id="dato-widget"></div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">Equipos invictos</div>
+        <div class="widget-body" id="invictos-widget"></div>
+      </div>
+
+      <div class="ad ad-sidebar">AdSense 300×250</div>
+
+    </aside>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <p>Mundial 2026 · Estadísticas actualizadas cada 5 minutos · <a href="#">Aviso de privacidad</a></p>
+  </div>
+</footer>
+
+<script type="module">
+
+const API = "http://localhost:8000/api";
+
+function escudo(url, nombre) {
+  return url
+    ? `<img src="${url}" width="22" height="22" style="object-fit:contain;flex-shrink:0" onerror="this.style.display='none'" alt="${nombre}">`
+    : '';
+}
+
+let _goleadores = [];
+let _tabla = {};
+let _partidos = [];
+let _tabActiva = 'goleadores';
+
+// ── STATS GLOBALES ─────────────────────────────
+
+function renderStatsGlobales() {
+  const totalPartidos = _partidos.length;
+  const totalGoles    = _partidos.reduce((s, p) => s + (p.goles_l || 0) + (p.goles_v || 0), 0);
+  const promedio      = totalPartidos ? (totalGoles / totalPartidos).toFixed(2) : 0;
+  const maxGoles      = Math.max(..._partidos.map(p => (p.goles_l || 0) + (p.goles_v || 0)));
+  const sinGoles      = _partidos.filter(p => (p.goles_l || 0) + (p.goles_v || 0) === 0).length;
+  const topGoleador   = _goleadores[0];
+
+  document.getElementById('stats-globales').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card-num">${totalPartidos}</div>
+      <div class="stat-card-label">Partidos jugados</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-num">${totalGoles}</div>
+      <div class="stat-card-label">Goles totales</div>
+      <div class="stat-card-sub">${promedio} por partido</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-num">${maxGoles}</div>
+      <div class="stat-card-label">Máx. goles en un partido</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-num">${sinGoles}</div>
+      <div class="stat-card-label">Partidos sin goles</div>
+    </div>
+    ${topGoleador ? `
+    <div class="stat-card">
+      <div style="display:flex;justify-content:center;margin-bottom:var(--space-sm)">
+        ${escudo(topGoleador.escudo, topGoleador.pais)}
+      </div>
+      <div class="stat-card-num">${topGoleador.goles}</div>
+      <div class="stat-card-label">Goles — líder</div>
+      <div class="stat-card-sub">${topGoleador.nombre}</div>
+    </div>` : ''}
+  `;
+}
+
+// ── RANKINGS ───────────────────────────────────
+
+window.setTab = tab => {
+  _tabActiva = tab;
+  document.querySelectorAll('.tab-section').forEach(t => {
+    t.classList.toggle('active', t.textContent.trim().toLowerCase().includes(
+      tab === 'goleadores' ? 'goleador' : tab === 'equipos-goles' ? 'goleador' : 'puntos'
+    ));
+  });
+  // Fix toggle por texto exacto
+  document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (tab === 'goleadores')      renderGoleadores();
+  if (tab === 'equipos-goles')   renderEquiposGoles();
+  if (tab === 'equipos-puntos')  renderEquiposPuntos();
+};
+
+function renderGoleadores() {
+  const max = _goleadores[0]?.goles || 1;
+  document.getElementById('ranking-container').innerHTML =
+    _goleadores.map((g, i) => {
+      const numCls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+      const pct = Math.round((g.goles / max) * 100);
+      return `
+        <div class="ranking-row">
+          <div class="ranking-num ${numCls}">${i + 1}</div>
+          ${escudo(g.escudo, g.pais)}
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:500;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              ${g.nombre}
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">${g.pais}</div>
+            <div class="bar-container" style="margin-top:5px">
+              <div class="bar-fill" style="width:${pct}%"></div>
+            </div>
+          </div>
+          <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--color-dorado);flex-shrink:0">
+            ${g.goles}
+          </div>
+        </div>`;
+    }).join('');
+}
+
+function renderEquiposGoles() {
+  const equipos = [];
+  Object.values(_tabla).forEach(grupo => {
+    grupo.forEach(e => equipos.push(e));
+  });
+  equipos.sort((a, b) => b.gf - a.gf);
+  const max = equipos[0]?.gf || 1;
+
+  document.getElementById('ranking-container').innerHTML =
+    equipos.slice(0, 12).map((e, i) => {
+      const numCls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+      const pct = Math.round((e.gf / max) * 100);
+      return `
+        <div class="ranking-row">
+          <div class="ranking-num ${numCls}">${i + 1}</div>
+          ${escudo(e.escudo, e.equipo)}
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:500;font-size:0.9rem">${e.equipo}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">${e.pj} partidos jugados</div>
+            <div class="bar-container" style="margin-top:5px">
+              <div class="bar-fill" style="width:${pct}%"></div>
+            </div>
+          </div>
+          <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--color-dorado);flex-shrink:0">
+            ${e.gf}
+          </div>
+        </div>`;
+    }).join('');
+}
+
+function renderEquiposPuntos() {
+  const equipos = [];
+  Object.values(_tabla).forEach(grupo => {
+    grupo.forEach(e => equipos.push(e));
+  });
+  equipos.sort((a, b) => b.pts - a.pts || b.dif - a.dif);
+  const max = equipos[0]?.pts || 1;
+
+  document.getElementById('ranking-container').innerHTML =
+    equipos.slice(0, 12).map((e, i) => {
+      const numCls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+      const pct = Math.round((e.pts / max) * 100);
+      const dif = e.dif > 0 ? `+${e.dif}` : e.dif;
+      return `
+        <div class="ranking-row">
+          <div class="ranking-num ${numCls}">${i + 1}</div>
+          ${escudo(e.escudo, e.equipo)}
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:500;font-size:0.9rem">${e.equipo}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">Dif: ${dif} · ${e.gf} goles</div>
+            <div class="bar-container" style="margin-top:5px">
+              <div class="bar-fill" style="width:${pct}%;background:var(--color-dorado)"></div>
+            </div>
+          </div>
+          <div style="font-family:var(--font-display);font-size:1.8rem;color:var(--color-verde);flex-shrink:0">
+            ${e.pts}
+          </div>
+        </div>`;
+    }).join('');
+}
+
+// ── INVICTOS WIDGET ────────────────────────────
+
+function renderInvictos() {
+  const equipos = [];
+  Object.values(_tabla).forEach(grupo => grupo.forEach(e => equipos.push(e)));
+  const invictos = equipos.filter(e => e.p === 0 && e.pj > 0).sort((a,b) => b.pts - a.pts);
+
+  document.getElementById('invictos-widget').innerHTML = invictos.length
+    ? invictos.slice(0,6).map(e => `
+        <div style="display:flex;align-items:center;gap:var(--space-sm);
+                    padding:8px 0;border-bottom:1px solid rgba(30,37,64,0.6)">
+          ${escudo(e.escudo, e.equipo)}
+          <div style="flex:1">
+            <div style="font-size:0.85rem;font-weight:500">${e.equipo}</div>
+            <div style="font-size:0.7rem;color:var(--text-muted)">${e.g}G ${e.e}E — ${e.pts} pts</div>
+          </div>
+          <span class="badge badge-verde">Invicto</span>
+        </div>
+      `).join('')
+    : '<div style="color:var(--text-muted);font-size:0.85rem">Sin datos</div>';
+}
+
+// ── DATO CURIOSO WIDGET ────────────────────────
+
+function renderDato() {
+  const equipos = [];
+  Object.values(_tabla).forEach(g => g.forEach(e => equipos.push(e)));
+
+  const masGoleador = equipos.sort((a,b) => b.gf - a.gf)[0];
+  const menosGoles  = [...equipos].sort((a,b) => a.gc - b.gc)[0];
+
+  document.getElementById('dato-widget').innerHTML = `
+    <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.7">
+      ${masGoleador ? `
+        <p style="margin-bottom:var(--space-sm)">
+          <span style="color:var(--color-verde);font-weight:500">${masGoleador.equipo}</span>
+          es el equipo más goleador con
+          <span style="color:var(--color-dorado);font-weight:500">${masGoleador.gf} goles</span>
+          en ${masGoleador.pj} partidos.
+        </p>` : ''}
+      ${menosGoles ? `
+        <p>
+          <span style="color:var(--color-verde);font-weight:500">${menosGoles.equipo}</span>
+          es el menos goleado con solo
+          <span style="color:var(--color-dorado);font-weight:500">${menosGoles.gc} goles en contra</span>.
+        </p>` : ''}
+    </div>
+  `;
+}
+
+// ── INIT ───────────────────────────────────────
+
+async function cargarTodo() {
+  try {
+    const [golesRes, tablaRes, partidosRes] = await Promise.all([
+      fetch(`${API}/goleadores/`),
+      fetch(`${API}/tabla/`),
+      fetch(`${API}/partidos/`),
+    ]);
+
+    _goleadores = await golesRes.json();
+    _tabla      = await tablaRes.json();
+    _partidos   = await partidosRes.json();
+
+    renderStatsGlobales();
+    renderGoleadores();
+    renderInvictos();
+    renderDato();
+
+  } catch(e) {
+    console.error("Error:", e);
+    document.getElementById('ranking-container').innerHTML =
+      `<div style="color:var(--color-rojo);padding:var(--space-xl);text-align:center">
+        Error conectando al servidor. ¿Está corriendo el backend?
+      </div>`;
+  }
+}
+
+cargarTodo();
+
+</script>
+</body>
+</html>

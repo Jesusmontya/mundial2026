@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendario Mundial 2026 — Próximos Partidos</title>
+  <meta name="description" content="Calendario completo del Mundial 2026. Próximos partidos con fecha, hora y fase." />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .filtros {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-lg);
+    }
+    .filtro-btn {
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      background: transparent;
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .filtro-btn:hover  { color: var(--text-primary); border-color: var(--text-muted); }
+    .filtro-btn.active { background: var(--color-verde); color: #000; border-color: var(--color-verde); }
+
+    .fecha-header {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 3px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding: var(--space-md) 0 var(--space-sm);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: var(--space-sm);
+      margin-top: var(--space-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .fecha-header:first-child { margin-top: 0; }
+    .fecha-hoy {
+      font-size: 0.7rem;
+      background: var(--color-verde);
+      color: #000;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .partido-prox {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: var(--space-md) var(--space-lg);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: var(--space-md);
+      transition: border-color 0.2s;
+    }
+    .partido-prox:hover { border-color: rgba(0,210,91,0.4); }
+    .partido-prox.es-hoy { border-color: var(--color-dorado); }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;width:100%;max-width:100%">
+    <div class="navbar-logo">MUNDIAL <span>2026</span></div>
+    <ul class="navbar-links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="tabla.html">Tabla</a></li>
+      <li><a href="resultados.html">Resultados</a></li>
+      <li><a href="calendario.html" class="active">Calendario</a></li>
+      <li><a href="estadisticas.html">Stats</a></li>
+      <li><a href="predicciones.html">Predicciones</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="container">
+  <div style="padding:var(--space-xl) 0 var(--space-lg);border-bottom:1px solid var(--border);margin-bottom:var(--space-xl)">
+    <h1 style="font-size:clamp(2rem,5vw,3.5rem)">
+      CALENDARIO <span style="color:var(--color-verde)">2026</span>
+    </h1>
+    <p style="color:var(--text-muted);margin-top:var(--space-sm)" id="subtitulo">
+      Mundial 2026 · Cargando partidos...
+    </p>
+  </div>
+</div>
+
+<!-- ANUNCIO TOP -->
+<div class="container">
+  <div class="ad ad-horizontal">Publicidad — AdSense 728×90</div>
+</div>
+
+<!-- CONTENIDO -->
+<div class="container">
+  <div class="layout-main">
+
+    <main>
+      <!-- FILTROS -->
+      <div class="filtros" id="filtros"></div>
+
+      <!-- PARTIDOS -->
+      <div id="calendario-container">
+        <div style="color:var(--text-muted);padding:var(--space-xl);text-align:center">Cargando...</div>
+      </div>
+
+      <!-- ANUNCIO MEDIO -->
+      <div class="ad ad-horizontal" style="margin-top:var(--space-xl)">Publicidad — AdSense 728×90</div>
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="ad ad-sidebar">AdSense 300×250</div>
+
+      <div class="widget">
+        <div class="widget-header">Partidos de hoy</div>
+        <div class="widget-body" id="hoy-widget">
+          <div style="color:var(--text-muted);font-size:0.85rem">Sin partidos hoy</div>
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">Próxima jornada</div>
+        <div class="widget-body" id="proxima-widget"></div>
+      </div>
+
+      <div class="ad ad-sidebar">AdSense 300×250</div>
+
+    </aside>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <p>Mundial 2026 · Calendario actualizado cada 5 minutos · <a href="#">Aviso de privacidad</a></p>
+  </div>
+</footer>
+
+<script type="module">
+
+const API = "http://localhost:8000/api";
+
+const HOY = new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' });
+
+function escudo(url, nombre) {
+  return url
+    ? `<img src="${url}" width="22" height="22" style="object-fit:contain;flex-shrink:0" onerror="this.style.display='none'" alt="${nombre}">`
+    : '';
+}
+
+function fmtFecha(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
+function fmtHora(iso) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
+}
+
+function fmtFaseLabel(fase) {
+  const map = {
+    'GROUP_STAGE':       'Fase de Grupos',
+    'LAST_16':           'Octavos de Final',
+    'QUARTER_FINALS':    'Cuartos de Final',
+    'SEMI_FINALS':       'Semifinales',
+    'THIRD_PLACE_MATCH': 'Tercer Lugar',
+    'FINAL':             'Final',
+  };
+  return map[fase] || fase?.replace(/_/g, ' ') || '';
+}
+
+function esHoy(iso) {
+  const d = new Date(iso);
+  const hoy = new Date();
+  return d.getDate() === hoy.getDate() &&
+         d.getMonth() === hoy.getMonth() &&
+         d.getFullYear() === hoy.getFullYear();
+}
+
+let _calendario = [];
+let _faseActiva = 'TODOS';
+
+// ── FILTROS ────────────────────────────────────
+
+function getFases(partidos) {
+  return ['TODOS', ...new Set(partidos.map(p => p.fase).filter(Boolean))];
+}
+
+function renderFiltros(fases) {
+  document.getElementById('filtros').innerHTML =
+    fases.map(f => `
+      <button class="filtro-btn ${f === _faseActiva ? 'active' : ''}"
+        onclick="setFase('${f}')">
+        ${f === 'TODOS' ? 'Todos' : fmtFaseLabel(f)}
+      </button>
+    `).join('');
+}
+
+window.setFase = f => {
+  _faseActiva = f;
+  document.querySelectorAll('.filtro-btn').forEach(b => {
+    const label = f === 'TODOS' ? 'Todos' : fmtFaseLabel(f);
+    b.classList.toggle('active', b.textContent.trim() === label);
+  });
+  const filtrados = f === 'TODOS' ? _calendario : _calendario.filter(p => p.fase === f);
+  renderCalendario(filtrados);
+};
+
+// ── CALENDARIO ─────────────────────────────────
+
+function renderCalendario(partidos) {
+  if (!partidos.length) {
+    document.getElementById('calendario-container').innerHTML =
+      '<div style="color:var(--text-muted);padding:var(--space-xl);text-align:center">Sin partidos programados</div>';
+    return;
+  }
+
+  const porFecha = {};
+  partidos.forEach(p => {
+    const fecha = fmtFecha(p.fecha);
+    if (!porFecha[fecha]) porFecha[fecha] = [];
+    porFecha[fecha].push(p);
+  });
+
+  document.getElementById('calendario-container').innerHTML =
+    Object.entries(porFecha).map(([fecha, ps]) => {
+      const esFechaHoy = fecha === HOY;
+      return `
+        <div class="fecha-header">
+          <span>${fecha}</span>
+          ${esFechaHoy ? '<span class="fecha-hoy">HOY</span>' : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:var(--space-sm);margin-bottom:var(--space-sm)">
+          ${ps.map(p => `
+            <div class="partido-prox ${esHoy(p.fecha) ? 'es-hoy' : ''}">
+              <div class="partido-equipo">
+                ${escudo(p.escudo_l, p.local)}
+                <span>${p.local}</span>
+              </div>
+              <div class="partido-marcador">
+                <div style="font-family:var(--font-display);font-size:1.6rem;
+                            color:var(--color-dorado);letter-spacing:2px;text-align:center">
+                  ${fmtHora(p.fecha)}
+                </div>
+                <div class="marcador-status prox" style="text-align:center">
+                  ${esHoy(p.fecha) ? '⚡ Hoy' : 'Programado'}
+                </div>
+                <div class="partido-meta" style="text-align:center">
+                  ${p.grupo ?? fmtFaseLabel(p.fase)}
+                </div>
+              </div>
+              <div class="partido-equipo away">
+                ${escudo(p.escudo_v, p.visitante)}
+                <span>${p.visitante}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+    }).join('');
+}
+
+// ── WIDGET HOY ─────────────────────────────────
+
+function renderHoy(partidos) {
+  const hoy = partidos.filter(p => esHoy(p.fecha));
+  if (!hoy.length) {
+    document.getElementById('hoy-widget').innerHTML =
+      '<div style="color:var(--text-muted);font-size:0.85rem">Sin partidos hoy</div>';
+    return;
+  }
+  document.getElementById('hoy-widget').innerHTML =
+    hoy.map(p => `
+      <div style="padding:9px 0;border-bottom:1px solid rgba(30,37,64,0.6)">
+        <div style="font-weight:500;font-size:0.85rem">
+          ${p.local} vs ${p.visitante}
+        </div>
+        <div style="font-size:0.72rem;color:var(--color-dorado);margin-top:2px">
+          Hoy ${fmtHora(p.fecha)} hrs
+        </div>
+        <div style="font-size:0.7rem;color:var(--text-muted)">
+          ${p.grupo ?? fmtFaseLabel(p.fase)}
+        </div>
+      </div>
+    `).join('');
+}
+
+// ── WIDGET PRÓXIMA JORNADA ──────────────────────
+
+function renderProxima(partidos) {
+  const proximos = partidos
+    .filter(p => new Date(p.fecha) > new Date())
+    .slice(0, 4);
+
+  document.getElementById('proxima-widget').innerHTML = proximos.length
+    ? proximos.map(p => `
+        <div style="padding:9px 0;border-bottom:1px solid rgba(30,37,64,0.6)">
+          <div style="font-weight:500;font-size:0.85rem">
+            ${escudo(p.escudo_l, p.local)}
+            ${p.local} vs ${p.visitante}
+            ${escudo(p.escudo_v, p.visitante)}
+          </div>
+          <div style="font-size:0.72rem;color:var(--color-verde);margin-top:2px">
+            ${fmtFecha(p.fecha).split(',')[0]} ${fmtHora(p.fecha)}
+          </div>
+        </div>
+      `).join('')
+    : '<div style="color:var(--text-muted);font-size:0.85rem">Sin próximos partidos</div>';
+}
+
+// ── INIT ───────────────────────────────────────
+
+async function cargarTodo() {
+  try {
+    const res = await fetch(`${API}/calendario/`);
+    _calendario = await res.json();
+
+    document.getElementById('subtitulo').textContent =
+      `Mundial 2026 · ${_calendario.length} partidos programados`;
+
+    const fases = getFases(_calendario);
+    renderFiltros(fases);
+    renderCalendario(_calendario);
+    renderHoy(_calendario);
+    renderProxima(_calendario);
+
+  } catch(e) {
+    console.error("Error:", e);
+    document.getElementById('calendario-container').innerHTML =
+      `<div style="color:var(--color-rojo);padding:var(--space-xl);text-align:center">
+        Error conectando al servidor. ¿Está corriendo el backend?
+      </div>`;
+  }
+}
+
+cargarTodo();
+
+</script>
+</body>
+</html>
