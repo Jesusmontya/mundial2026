@@ -480,3 +480,53 @@
       white-space: nowrap;
     }
   }
+  @media (max-width: 600px) {
+    body { overflow-x: hidden; }
+  
+    .container {
+      padding: 0 12px !important;
+      overflow-x: hidden;
+    }
+  
+    /* Partido card */
+    .partido-card {
+      grid-template-columns: 1fr 70px 1fr !important;
+      padding: 10px 8px !important;
+      gap: 6px !important;
+    }
+  
+    .partido-equipo span {
+      font-size: 0.72rem !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 75px;
+    }
+  
+    .bandera { font-size: 1rem !important; }
+  
+    .marcador-nums {
+      font-size: 1.1rem !important;
+      letter-spacing: 2px !important;
+    }
+  
+    .marcador-status { font-size: 0.6rem !important; }
+    .partido-meta    { font-size: 0.6rem !important; }
+  
+    /* Navbar */
+    .navbar-links { display: none; }
+    .nav-toggle   { display: block; }
+  
+    /* Tabs */
+    .tabs { gap: 2px !important; }
+    .tab  { padding: 4px 6px !important; font-size: 0.62rem !important; }
+  
+    /* Tabla */
+    .tabla td, .tabla th {
+      padding: 8px 4px !important;
+      font-size: 0.75rem !important;
+    }
+  
+    /* Sección títulos */
+    .section-title { font-size: 1.3rem !important; }
+  }
