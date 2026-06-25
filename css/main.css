@@ -409,3 +409,74 @@
      .marcador-nums { font-size: 1.5rem; }
      .bandera { font-size: 1.2rem; }
    }
+   /* =============================================
+   MOBILE — fixes
+   ============================================= */
+@media (max-width: 600px) {
+
+    /* Navbar */
+    .navbar { padding: 0 var(--space-md); }
+    .navbar-logo { font-size: 1.2rem; }
+  
+    /* Hero stats en una sola fila */
+    .hero-stats-grid {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: var(--space-sm) !important;
+    }
+  
+    /* Partido card — mostrar ambos equipos */
+    .partido-card {
+      grid-template-columns: 1fr auto 1fr !important;
+      padding: var(--space-sm) var(--space-md) !important;
+      gap: var(--space-sm) !important;
+    }
+  
+    .partido-equipo span {
+      font-size: 0.78rem !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 90px;
+    }
+  
+    .bandera { font-size: 1.1rem !important; }
+  
+    .marcador-nums {
+      font-size: 1.3rem !important;
+      letter-spacing: 3px !important;
+    }
+  
+    /* Tabla scroll horizontal */
+    .tabla-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  
+    /* Tabs scroll */
+    .tabs { overflow-x: auto; }
+  
+    /* Sección títulos */
+    .section-title { font-size: 1.3rem !important; }
+  
+    /* Chat input */
+    #chat-nombre { width: 90px !important; }
+  }
+  @media (max-width: 600px) {
+    /* Tabs grupos más fácil de tocar */
+    .tab {
+      padding: 6px 10px !important;
+      font-size: 0.72rem !important;
+    }
+  
+    /* Chat input más compacto */
+    #chat-nombre { width: 80px !important; }
+  
+    /* Partido card nombres cortos */
+    .partido-equipo span {
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
