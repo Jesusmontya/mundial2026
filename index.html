@@ -2,11 +2,32 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Mundial 2026 — Resultados, Tabla y Estadísticas en Español</title>
   <meta name="description" content="Portal completo del Mundial 2026. Resultados en vivo, tabla de posiciones, goleadores y próximos partidos." />
   <link rel="stylesheet" href="css/main.css" />
   <style>
+    @media (max-width: 600px) {
+        .container {
+          padding: 0 var(--space-sm) !important;
+          max-width: 100vw !important;
+          overflow-x: hidden !important;
+        }
+        .layout-main {
+          padding: var(--space-md) 0 !important;
+        }
+        .partido-card {
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+        body {
+          overflow-x: hidden !important;
+        }
+        .section-header {
+          flex-wrap: wrap;
+          gap: var(--space-sm);
+        }
+      }
     /* MOBILE FIXES */
     @media (max-width: 600px) {
       .navbar-links { display: none; }
