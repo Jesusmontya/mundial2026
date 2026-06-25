@@ -466,3 +466,16 @@
     #chat-nombre { width: 75px; font-size: 0.78rem; }
     #chat-input  { font-size: 0.78rem; }
   }
+  @media (max-width: 600px) {
+    .partido-card {
+      grid-template-columns: minmax(0,1fr) 60px minmax(0,1fr);
+    }
+    .partido-equipo {
+      min-width: 0;
+    }
+    .partido-equipo span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
